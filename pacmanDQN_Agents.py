@@ -65,6 +65,14 @@ class PacmanDQN(game.Agent):
         self.sess = tf.Session(config = tf.ConfigProto(gpu_options = gpu_options))
         self.qnet = DQN(self.params)
 
+        # Summary Writer
+        self.summary = tf.Summary()
+        self.wins = deque(maxlen=100)
+
+        if(params['save_file']):
+          self.writer = tf.summary.FileWriter('logs/model-' + params['save_file'], graph=self.session.graph)
+
+
         # time started
         self.general_record_time = time.strftime("%a_%d_%b_%Y_%H_%M_%S", time.localtime())
         # Q and cost
@@ -198,6 +206,8 @@ class PacmanDQN(game.Agent):
         self.terminal = True
         self.observation_step(state)
 
+        self.wins.append(1 if self.won else 0)
+
         # Print stats
         log_file = open('./logs/'+str(self.general_record_time)+'-l-'+str(self.params['width'])+'-m-'+str(self.params['height'])+'-x-'+str(self.params['num_training'])+'.log','a')
         log_file.write("# %4d | steps: %5d | steps_t: %5d | t: %4f | r: %12f | e: %10f " %
@@ -207,6 +217,14 @@ class PacmanDQN(game.Agent):
                          (self.numeps,self.local_cnt, self.cnt, time.time()-self.s, self.ep_rew, self.params['eps']))
         sys.stdout.write("| Q: %10f | won: %r \n" % ((max(self.Q_global, default=float('nan')), self.won)))
         sys.stdout.flush()
+
+        # Write stats
+        self.summary.value.add(tag="reward", simple_value=self.ep_rew)
+        self.summary.value.add(tag="mean Q", simple_value=np.mean(self.Q_global))
+        self.summary.value.add(tag="win percentage", simple_value=np.mean(list(self.wins)))
+
+        self.writer.add_summary(self.summary, global_step=self.cnt)
+
 
     def train(self):
         # Train
