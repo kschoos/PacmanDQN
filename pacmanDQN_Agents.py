@@ -28,7 +28,7 @@ from DQN import *
 params = {
     # Model backups
     'load_file': 'originalClassic',
-    'save_file': 'originalClassic'
+    'save_file': 'originalClassic',
     'save_interval' : 10000,
 
     # Training parameters
