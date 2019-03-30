@@ -44,7 +44,9 @@ params = {
     # Epsilon value (epsilon-greedy)
     'eps': 1.0,             # Epsilon start value
     'eps_final': 0.1,       # Epsilon end value
-    'eps_step': 10000       # Epsilon steps between start and end (linear)
+    'eps_step': 10000,       # Epsilon steps between start and end (linear)
+
+    'save_file': 'originalClassic'
 }                     
 
 
@@ -69,8 +71,10 @@ class PacmanDQN(game.Agent):
         self.summary = tf.Summary()
         self.wins = deque(maxlen=100)
 
+        print(args)
+
         if(params['save_file']):
-          self.writer = tf.summary.FileWriter('logs/model-' + params['save_file'], graph=self.session.graph)
+          self.writer = tf.summary.FileWriter('logs/model-' + params['save_file'], graph=tf.Session().graph)
 
 
         # time started
