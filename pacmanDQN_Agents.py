@@ -27,9 +27,9 @@ from DQN import *
 
 params = {
     # Model backups
-    'load_file': None,
-    'save_file': None,
-    'save_interval' : 10000, 
+    'load_file': 'originalClassic',
+    'save_file': 'originalClassic'
+    'save_interval' : 10000,
 
     # Training parameters
     'train_start': 5000,    # Episodes before training starts
@@ -46,8 +46,7 @@ params = {
     'eps_final': 0.1,       # Epsilon end value
     'eps_step': 10000,       # Epsilon steps between start and end (linear)
 
-    'save_file': 'originalClassic'
-}                     
+}
 
 
 
@@ -182,7 +181,7 @@ class PacmanDQN(game.Agent):
             # Save model
             if(params['save_file']):
                 if self.local_cnt > self.params['train_start'] and self.local_cnt % self.params['save_interval'] == 0:
-                    self.qnet.save_ckpt('saves/model-' + params['save_file'] + "_" + str(self.cnt) + '_' + str(self.numeps))
+                    self.qnet.save_ckpt('saves/model-' + params['save_file'])
                     print('Model saved')
 
             # Train

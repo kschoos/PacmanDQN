@@ -64,8 +64,11 @@ class DQN:
         self.sess.run(tf.global_variables_initializer())
 
         if self.params['load_file'] is not None:
-            print('Loading checkpoint...')
-            self.saver.restore(self.sess,self.params['load_file'])
+            try:
+                print('Loading checkpoint...')
+                self.saver.restore(self.sess, self.params['load_file'])
+            except:
+                pass
 
         
     def train(self,bat_s,bat_a,bat_t,bat_n,bat_r):
