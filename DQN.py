@@ -63,7 +63,8 @@ class DQN:
         if self.params['load_file'] is not None:
             try:
                 print('Loading checkpoint...')
-                self.saver.restore(self.sess, self.params['load_file'])
+                self.saver.restore(self.sess, 'saves/model-' + self.params['load_file'])
+                print('Global step: {}'.format(self.sess.run(self.global_step)))
             except:
                 pass
 
