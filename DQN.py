@@ -10,6 +10,7 @@ class DQN:
         self.params = params
         self.network_name = 'qnet'
         self.sess = tf.Session()
+
         self.x = tf.placeholder('float', [None, params['width'],params['height'], 6],name=self.network_name + '_x')
         self.q_t = tf.placeholder('float', [None], name=self.network_name + '_q_t')
         self.actions = tf.placeholder("float", [None, 4], name=self.network_name + '_actions')
@@ -57,6 +58,8 @@ class DQN:
         # self.optim = tf.train.RMSPropOptimizer(self.params['lr'],self.params['rms_decay'],0.0,self.params['rms_eps']).minimize(self.cost,global_step=self.global_step)
         self.optim = tf.train.AdamOptimizer(self.params['lr']).minimize(self.cost, global_step=self.global_step)
         self.saver = tf.train.Saver(max_to_keep=0)
+       
+        self.increment = tf.assign_add(self.global_step, 1)
 
         self.sess.run(tf.global_variables_initializer())
 
@@ -68,6 +71,8 @@ class DQN:
             except:
                 pass
 
+    def increment_step(self):
+        return self.sess.run(self.increment)
         
     def train(self,bat_s,bat_a,bat_t,bat_n,bat_r):
         feed_dict={self.x: bat_n, self.q_t: np.zeros(bat_n.shape[0]), self.actions: bat_a, self.terminals:bat_t, self.rewards: bat_r}

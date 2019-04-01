@@ -62,13 +62,14 @@ class PacmanDQN(game.Agent):
         self.params['num_training'] = args['numTraining']
 
         # Start Tensorflow session
-        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.1)
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.3)
         self.sess = tf.Session(config = tf.ConfigProto(gpu_options = gpu_options))
         self.qnet = DQN(self.params)
 
         # Summary Writer
         self.summary = tf.Summary()
         self.wins = deque(maxlen=100)
+        self.episodesSoFar = 0
 
         print(args)
 
@@ -180,7 +181,7 @@ class PacmanDQN(game.Agent):
 
             # Save model
             if(params['save_file']):
-                if self.local_cnt > self.params['train_start'] and self.local_cnt % self.params['save_interval'] == 0:
+                if self.cnt > self.params['train_start'] and self.cnt % self.params['save_interval'] == 0:
                     self.qnet.save_ckpt('saves/model-' + params['save_file'])
                     print('Model saved')
 
@@ -205,6 +206,8 @@ class PacmanDQN(game.Agent):
         # Next
         self.ep_rew += self.last_reward
 
+        self.episodesSoFar += 1
+
         # Do observation
         self.terminal = True
         self.observation_step(state)
@@ -228,10 +231,13 @@ class PacmanDQN(game.Agent):
 
         self.writer.add_summary(self.summary, global_step=self.cnt)
 
+        if (self.episodesSoFar == self.params['num_training']):
+          self.qnet.save_ckpt('saves/model-' + params['save_file'])
+
 
     def train(self):
         # Train
-        if (self.local_cnt > self.params['train_start']):
+        if (self.cnt > self.params['train_start']):
             batch = random.sample(self.replay_mem, self.params['batch_size'])
             batch_s = [] # States (s)
             batch_r = [] # Rewards (r)
@@ -252,6 +258,8 @@ class PacmanDQN(game.Agent):
             batch_t = np.array(batch_t)
 
             self.cnt, self.cost_disp = self.qnet.train(batch_s, batch_a, batch_t, batch_n, batch_r)
+        else:
+            self.cnt = self.qnet.increment_step()
 
 
     def get_onehot(self, actions):
