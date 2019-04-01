@@ -76,6 +76,8 @@ class PacmanDQN(game.Agent):
         if (params['save_file']):
             self.writer = tf.summary.FileWriter('logs/model-' + params['save_file'], graph=tf.Session().graph)
 
+        self.replay_mem = None
+
         if(params['load_file']):
             try:
                 with open('memories/model-' + params['load_file'], 'r') as f:
